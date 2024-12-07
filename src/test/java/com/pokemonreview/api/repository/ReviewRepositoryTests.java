@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
+import java.util.Optional;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
@@ -98,5 +99,21 @@ public class ReviewRepositoryTests {
         Assertions.assertEquals("Updated Title", updatedReviewResult.getTitle());
         Assertions.assertEquals("Updated Content", updatedReviewResult.getContent());
 
+    }
+
+    @Test
+    public void ReviewRepository_DeleteReview_ReturnsReviewIsDelete() {
+        Review review = Review.builder()
+                .title("Title")
+                .content("Testing")
+                .stars(5)
+                .build();
+
+        reviewRepository.save(review);
+
+        reviewRepository.deleteById(review.getId());
+        Optional<Review> deletedReview = reviewRepository.findById(review.getId());
+
+        Assertions.assertFalse(deletedReview.isPresent());
     }
 }
