@@ -16,7 +16,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,5 +55,61 @@ public class ReviewServiceTests {
         ReviewDto savedReview = reviewService.createReview(pokemon.getId(), reviewDto);
 
         Assertions.assertNotNull(savedReview);
+    }
+
+    @Test
+    public void ReviewService_GetReviewByPokemonId_ReturnsReviewDto(){
+        int reviewId = 1;
+        when(reviewRepository.findByPokemonId(reviewId)).thenReturn(Arrays.asList(review));
+
+        List<ReviewDto> pokenmonReturn = reviewService.getReviewsByPokemonId(reviewId);
+
+        Assertions.assertNotNull(pokenmonReturn);
+    }
+
+    @Test
+    public void ReviewService_GetReviewById_ReturnsReviewDto() {
+        int reviewId = 1;
+        int pokemonId = 1;
+
+        review.setPokemon(pokemon);
+
+        when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
+        when(pokemonRepository.findById(pokemonId)).thenReturn(Optional.of(pokemon));
+
+        ReviewDto reviewReturn = reviewService.getReviewById(reviewId, pokemonId);
+
+        Assertions.assertNotNull(reviewReturn);
+    }
+
+    @Test
+    public void ReviewService_UpdateReview_ReturnsUpdatedReviewDto(){
+        int reviewId = 1;
+        int pokemonId = 1;
+
+        //Cannot invoke "com.pokemonreview.api.models.Review.getId()" because "review" is null
+        pokemon.setReviews(Arrays.asList(review));
+        review.setPokemon(pokemon);
+
+        when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
+        when(pokemonRepository.findById(pokemonId)).thenReturn(Optional.of(pokemon));
+        when(reviewRepository.save(review)).thenReturn(review);
+
+        ReviewDto updatedReview = reviewService.updateReview(reviewId, pokemonId, reviewDto);
+
+        Assertions.assertNotNull(updatedReview);
+    }
+
+    @Test
+    public void ReviewService_DeleteReview_ReturnsDeletedReviewDto(){
+        int reviewId = 1;
+        int pokemonId = 1;
+
+        review.setPokemon(pokemon);
+
+        when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
+        when(pokemonRepository.findById(pokemonId)).thenReturn(Optional.of(pokemon));
+
+        assertAll(() -> reviewService.deleteReview(reviewId, pokemonId));
     }
 }
